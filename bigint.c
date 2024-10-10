@@ -186,7 +186,7 @@ bigint* SUB(bigint *a, bigint *b) {
 
 // 메모리 관리 실수를 줄이기 위한 아이디어
 /*
-void store_ADD_to_target(bigint *a, bigint *b, bigint *target)
+void store_ADD_to_target(bigint *a, bigint *b, bigint **target)
 와 같이 선언하여
 결과값을 리턴하는 게 아니라
 res에 결과값을 담아서 쓰도록 강제하면?

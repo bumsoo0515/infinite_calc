@@ -38,6 +38,7 @@ void propagate_carry_from_iter(bigint *n, node *it) {
     }
 }
 
+// O(NM)
 bigint* naiveMUL(bigint *a, bigint *b) {
     shrink_to_fit(a), shrink_to_fit(b);
 
@@ -70,7 +71,8 @@ void karatsuba() {
     
 }
 
-
+/*
+// TESTCODE
 int main() {
     bigint *a = str_to_bigint("2434234");
     bigint *b = str_to_bigint("88");
@@ -79,3 +81,4 @@ int main() {
     // 999 * 999 = 998001
     print_bigint(r);
 }
+*/
