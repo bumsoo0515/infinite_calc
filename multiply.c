@@ -3,7 +3,7 @@
 void propagate_carry(bigint *n) {
     // 매번 받아올림을 제때에 수행해주면 곱셈 과정에서 각 노드 data의 최댓값 < 128
     // 다행히도 char 자료형 범위를 벗어나지 않을 걸로 예상하는데..?
-    node *it = n->head->next;
+    node *it = back(n->head);
     int carry = 0;
 
     while (it != n->head) {
@@ -11,11 +11,11 @@ void propagate_carry(bigint *n) {
         carry = it->data / 10;
         it->data %= 10;
 
-        it = it->next;
+        it = it->prev;
     }
 
     while (carry > 0) {
-        push_back(n->head, carry % 10);
+        push_front(n->head, carry % 10);
         carry /= 10;
     }
 }
@@ -29,11 +29,11 @@ void propagate_carry_from_iter(bigint *n, node *it) {
         carry = it->data / 10;
         it->data %= 10;
 
-        it = it->next;
+        it = it->prev;
     }
 
     while (carry > 0) {
-        push_back(n->head, carry % 10);
+        push_front(n->head, carry % 10);
         carry /= 10;
     }
 }
@@ -48,19 +48,19 @@ bigint* naiveMUL(bigint *a, bigint *b) {
 
     node *a_it, *b_it, *r_it, *r_st;
 
-    b_it = b->head->next;
-    r_st = r->head->next;
+    b_it = back(b->head);
+    r_st = back(r->head);
     while (b_it != b->head) {
         r_it = r_st;
-        for (a_it=a->head->next; a_it!=a->head; a_it=a_it->next) {
+        for (a_it=back(a->head); a_it!=a->head; a_it=a_it->prev) {
             r_it->data += a_it->data * b_it->data;
-            if (r_it->next == r->head) push_back(r->head, 0);
-            r_it = r_it->next;
+            if (r_it->prev == r->head) push_front(r->head, 0);
+            r_it = r_it->prev;
         }
         propagate_carry_from_iter(r, r_st);
-        b_it = b_it->next;
-        if (r_st->next == r->head) push_back(r->head, 0);
-        r_st = r_st->next;
+        b_it = b_it->prev;
+        if (r_st->prev == r->head) push_front(r->head, 0);
+        r_st = r_st->prev;
     }
     shrink_to_fit(r);
     return r;

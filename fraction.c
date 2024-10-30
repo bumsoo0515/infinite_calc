@@ -6,6 +6,10 @@ typedef struct fraction {
     bigint *numer, *denom;
 } fraction;
 
+fraction* alloc_fraction() {
+    return (fraction*)malloc(sizeof(fraction));
+}
+
 fraction* floatstr_to_fraction(char *str) {
 
 }

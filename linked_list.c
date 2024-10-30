@@ -92,7 +92,7 @@ void destroy_list(node *head) {clear(head); free(head);}
 // !warning! must store it in variable before using it. don't pass directly as fuction arguments.
 node* copy(node *head) {
     node *ret = new_list();
-    for (node *it=head->next; it!=head; it=it->next) push_back(ret, it->data);
+    for (node *it=front(head); it!=head; it=it->next) push_back(ret, it->data);
     return ret;
 }
 void reverse(node *head) {

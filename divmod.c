@@ -7,33 +7,38 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     bigint *div = new_bigint();
     bigint *mod = new_bigint();
 
-    node *it = a->head->prev;
+    node *it = front(a->head);
+    int lp = 0;
     while (it != a->head) {
-        push_front(mod->head, it->data);
+        // 종이에서 계산하는 나눗셈 과정.
+        // mod는 계산 과정 중 밑부분에 쓰는 수이면서
+        // 모든 계산이 끝나면 나머지가 될 것임.
+        push_back(mod->head, it->data);
         shrink_to_fit(mod);
-
         int curq = 0;
         while (!LESS(mod, b)) {
             bigint *tmp = SUB(mod, b);
-            release_bigint(mod);
+            free_bigint(mod);
             mod = tmp;
             curq++;
         }
 
-        push_front(div->head, curq);
-        it = it->prev;
+        push_back(div->head, curq);
+        it = it->next;
     }
 
     shrink_to_fit(div), shrink_to_fit(mod);
-    if (*div_p != NULL) release_bigint(*div_p);
-    if (*mod_p != NULL) release_bigint(*mod_p);
+    if (*div_p != NULL) free_bigint(*div_p);
+    if (*mod_p != NULL) free_bigint(*mod_p);
     *div_p = div;
     *mod_p = mod;
 }
 
+// /*
+// TESTCODE
 int main() {
-    bigint *a = str_to_bigint("103420");
-    bigint *b = str_to_bigint("66");
+    bigint *a = str_to_bigint("10");
+    bigint *b = str_to_bigint("5");
 
     bigint *div = NULL, *mod = str_to_bigint("123123");
     naiveDIVMOD(a, b, &div, &mod);
@@ -41,4 +46,8 @@ int main() {
     print_bigint(div);
     putchar('\n');
     print_bigint(mod);
+
+    free_bigint(a), free_bigint(b);
+    free_bigint(div), free_bigint(mod);
 }
+// */

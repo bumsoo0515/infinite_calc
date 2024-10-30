@@ -1,8 +1,8 @@
 linked_list.c (100%)
 bigint.c (100%)
-multiply.c (50%)
-divmod.c (0%)
-fraction.c (1%)
+multiply.c (50%) // 카라츠바 안 할거면 99%?
+divmod.c (20%)
+fraction.c (3%)
 parse_expr.c (0%)
 calc_stack.c (0%)
 main.c (0%)
