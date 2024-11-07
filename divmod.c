@@ -29,8 +29,8 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
 
     free_bigint(x), free_bigint(y);
 
-    bool sgn = a->sign ^ b->sign;
-    div->sign = mod->sign = sgn;
+    div->sign = a->sign ^ b->sign;
+    mod->sign = a->sign;
     shrink_to_fit(div), shrink_to_fit(mod);
     if (*div_p != NULL) free_bigint(*div_p);
     if (*mod_p != NULL) free_bigint(*mod_p);
