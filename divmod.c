@@ -2,21 +2,22 @@
 
 // O(NMk), 아직 양수 간의 연산만 구현
 void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
-    shrink_to_fit(a), shrink_to_fit(b);
+    bigint *x = ABS(a);
+    bigint *y = ABS(b);
 
     bigint *div = new_bigint();
     bigint *mod = new_bigint();
 
-    node *it = front(a->head);
-    while (it != a->head) {
+    node *it = front(x->head);
+    while (it != x->head) {
         // 종이에서 계산하는 나눗셈 과정.
-        // mod는 계산 과정 중 밑부분에 쓰는 수이면서
+        // mod는 계산 과정 중 쓰는 수이면서
         // 모든 계산이 끝나면 나머지가 될 것임.
         push_back(mod->head, it->data);
         shrink_to_fit(mod);
         int curq = 0;
-        while (!LESS(mod, b)) {
-            bigint *tmp = SUB(mod, b);
+        while (!LESS(mod, y)) {
+            bigint *tmp = SUB(mod, y);
             free_bigint(mod);
             mod = tmp;
             curq++;
@@ -25,6 +26,8 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
         push_back(div->head, curq);
         it = it->next;
     }
+
+    free_bigint(x), free_bigint(y);
 
     bool sgn = a->sign ^ b->sign;
     div->sign = mod->sign = sgn;

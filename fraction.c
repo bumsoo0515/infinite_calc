@@ -1,5 +1,7 @@
 #include "divmod.c"
 
+#define LIMIT 500
+
 // 유리수 사칙연산만으로 나올 수 있는 수는 유리수로 한정된다.
 // 분수 자료형을 만들어서 관리하면 이론 상 정밀도가 손실되지 않고 수를 관리할 수 있다.
 typedef struct fraction {
@@ -107,9 +109,78 @@ fraction* FDIV(fraction *a, fraction *b) {
 
 void print_fraction(fraction *f, long long dec) {
     reduce(f);
-    print_bigint(f->numer);
-    printf("/");
-    print_bigint(f->denom);
+
+    // 출력 자릿수를 음수로 지정 시 분수 형태로 출력하게.
+    if (dec < 0) {
+        print_bigint(f->numer);
+        printf("/");
+        print_bigint(f->denom);
+        return;
+    }
+
+    // 출력 자릿수를 지정한 경우.
+    // 지정 자릿수 이하는 그냥 잘라낸다. (반올림 X)
+    bigint *x = ABS(f->numer);
+    bigint *y = ABS(f->denom);
+    bigint *mod = new_bigint();
+
+    // list도 되지만, leading zero 제거의 편의를 위하여..
+    bigint *int_part = new_bigint();
+    bigint *dec_part = new_bigint();
+
+    node *it = front(x->head);
+    while (it != x->head || dec>0) {
+        // 종이에서 계산하는 나눗셈 과정.
+        // mod는 계산 과정 중 쓰는 수이면서
+        // 모든 계산이 끝나면 나머지가 될 것임.
+        if (it!=x->head) push_back(mod->head, it->data);
+        else {
+            dec--;
+            push_back(mod->head, 0);
+        }
+        shrink_to_fit(mod);
+        int curq = 0;
+        while (!LESS(mod, y)) {
+            bigint *tmp = SUB(mod, y);
+            free_bigint(mod);
+            mod = tmp;
+            curq++;
+        }
+
+        if (it != x->head) {
+            it = it->next;
+            push_back(int_part->head, curq);
+        }
+        else {
+            push_front(dec_part->head, curq);
+        }
+    }
+    free_bigint(x), free_bigint(y);
+
+    shrink_to_fit(int_part);
+    // 나누어떨어진 경우는 소수점 아래 붙은 불필요한 0을 삭제.
+    if (iszero(mod)) {
+        shrink_to_fit(dec_part);
+        if (iszero(dec_part)) {
+            // 소수점 이하가 다 0이라면
+            if (!iszero(int_part) && f->numer->sign == MINUS) printf("-");
+            for (node *it=front(int_part->head); it!=int_part->head; it=it->next) printf("%d", it->data);
+        }
+        else {
+            if (f->numer->sign == MINUS) printf("-");
+            for (node *it=front(int_part->head); it!=int_part->head; it=it->next) printf("%d", it->data);
+            printf(".");
+            for (node *it=back(dec_part->head); it!=dec_part->head; it=it->prev) printf("%d", it->data);
+        }
+    }
+    // 그렇지 않은 경우 무조건 최대 길이까지 출력.
+    else {
+        if (f->numer->sign == MINUS) printf("-");
+        for (node *it=front(int_part->head); it!=int_part->head; it=it->next) printf("%d", it->data);
+        printf(".");
+        for (node *it=back(dec_part->head); it!=dec_part->head; it=it->prev) printf("%d", it->data);
+    }
+    free_bigint(int_part), free_bigint(dec_part);
 }
 
 /*

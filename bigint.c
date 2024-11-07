@@ -8,7 +8,7 @@ typedef struct bigint {
     node *head;
 } bigint;
 
-// create new empty bigint and init with new EMPTY list, not 0
+// 새 bigint를 할당하고, 안에 새 list도 할당한 채로 return. (0을 저장하진 않는다.)
 bigint* new_bigint() {
     bigint* n = (bigint*)malloc(sizeof(bigint));
     n->sign = 0;
@@ -31,7 +31,7 @@ void shrink_to_fit(bigint *n) {
     if (empty(head)) n->sign = 0, push_front(head, 0);
 }
 
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* str_to_bigint(char *str) {
     bigint *n = new_bigint();
     char *it = str;
@@ -59,7 +59,7 @@ void print_bigint(bigint *n) {
     for (node *it=front(n->head); it!=n->head; it=it->next) putchar(it->data+'0');
 }
 
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* NEG(bigint *n) {
     shrink_to_fit(n);
     bigint *ret = new_bigint();
@@ -73,7 +73,7 @@ void NEGATE(bigint *n) {
     n->sign ^= 1;
     shrink_to_fit(n);
 }
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* ABS(bigint *n) {
     shrink_to_fit(n);
     bigint *ret = new_bigint();
@@ -108,10 +108,10 @@ bool iszero(bigint *n) {
     return front(n->head)->data == 0;
 }
 
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* SUB(bigint *a, bigint *b);
 
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* ADD(bigint *a, bigint *b) {
     shrink_to_fit(a), shrink_to_fit(b);
     if (a->sign != b->sign) {
@@ -152,7 +152,7 @@ bigint* ADD(bigint *a, bigint *b) {
     return r;
 }
 
-// !warning! must store it in variable before using it. don't pass directly as fuction arguments.
+// !주의! 바로 함수에 인자로 넘기지 말고 저장한 뒤 사용할 것. (메모리 관리)
 bigint* SUB(bigint *a, bigint *b) {
     // automatically changes to 0 <= B <= A, A-B
     if (a->sign == MINUS && b->sign == MINUS) {

@@ -70,10 +70,23 @@ void tokenize(char *str, Stack *res) {
         else if (*it=='.') underpoint = 1;
         else if ((*it=='+' || *it=='-') && (cur==NULL)) {
             // +나 -가 수의 부호를 표현하는 경우.
-            cur = new_fraction();
-            cur->numer = new_bigint();
-            cur->denom = str_to_bigint("1");
-            cur->numer->sign = (*it=='+' ? PLUS : MINUS);
+            // -1*수 와 같이 바꿔서 처리.
+            fraction *sgn = new_fraction();
+            sgn->numer = str_to_bigint("1");
+            sgn->denom = str_to_bigint("1");
+            sgn->numer->sign = (*it=='+' ? PLUS : MINUS);
+            push_num(&tmp, sgn);
+            push_op(&tmp, '*');
+        }
+        else if (*it=='(' && cur!=NULL) {
+            // 2(5+3)과 같이 * 기호가 생략된 경우.
+            push_num(&tmp, cur);
+            cur = NULL;
+            underpoint = 0;
+            // 멘토링 중, 곱셈 기호 생략 시 강한 결합으로 더 우선순위가 높아야 한다기에,
+            // '@' 기호를 더 높은 우선순위의 곱셈 기호로 임의로 지정해 사용하기로.
+            push_op(&tmp, '@');
+            push_op(&tmp, '(');
         }
         else if (*it=='+' || *it=='-' || *it=='*' || *it=='/' || *it=='(' || *it==')'){
             if (cur != NULL) {
@@ -105,7 +118,7 @@ int main() {
 
     tokenize(str, &res);
     while (!stempty(&res)) {
-        if (top(&res)->dtype == NUMBER) print_fraction(top(&res)->num, 500);
+        if (top(&res)->dtype == NUMBER) print_fraction(top(&res)->num, -1);
         else printf("%c", top(&res)->op);
         printf("\n");
         fflush(stdout);
