@@ -1,6 +1,6 @@
 #include "multiply.c"
 
-// O(NMk), 아직 양수 간의 연산만 구현
+// O(NM)
 void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     bigint *x = ABS(a);
     bigint *y = ABS(b);

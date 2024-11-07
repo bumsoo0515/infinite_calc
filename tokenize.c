@@ -48,7 +48,7 @@ void push_num(Stack *s, fraction *f) {
     s->top = to_add;
 }
 
-void tokenize(char *str, Stack *res) {
+void str_tokenize(char *str, Stack *res) {
     Stack tmp; tmp.top = NULL;
     // 먼저 앞에서부터 토큰을 분해해 스택에 순서대로 넣고,
     // 그걸 다시 빼서 나오는 순서대로 결과 스택에 다시 넣으면
@@ -95,6 +95,69 @@ void tokenize(char *str, Stack *res) {
                 underpoint = 0;
             }
             push_op(&tmp, *it);
+        }
+    }
+    if (cur != NULL) push_num(&tmp, cur);
+    
+    while (!stempty(&tmp)) {
+        if (top(&tmp)->dtype == NUMBER) {
+            push_num(res, top(&tmp)->num);
+        }
+        else {
+            push_op(res, top(&tmp)->op);
+        }
+        pop(&tmp);
+    }
+}
+
+void list_tokenize(node *head, Stack *res) {
+    Stack tmp; tmp.top = NULL;
+    // 먼저 앞에서부터 토큰을 분해해 스택에 순서대로 넣고,
+    // 그걸 다시 빼서 나오는 순서대로 결과 스택에 다시 넣으면
+    // 식의 맨 앞 토큰이 스택의 top에 제대로 오게 된다.
+
+    fraction *cur = NULL;
+    bool underpoint = 0;
+
+    for (node *it = front(head); it!=head; it=it->next) {
+        char v = it->data;
+        if (v>='0' && v<='9') {
+            if (cur == NULL) {
+                cur = new_fraction();
+                cur->numer = new_bigint();
+                cur->denom = str_to_bigint("1");
+            }
+            push_back(cur->numer->head, v-'0');
+            if (underpoint) push_back(cur->denom->head, 0);
+        }
+        else if (v=='.') underpoint = 1;
+        else if ((v=='+' || v=='-') && (cur==NULL)) {
+            // +나 -가 수의 부호를 표현하는 경우.
+            // -1*수 와 같이 바꿔서 처리.
+            fraction *sgn = new_fraction();
+            sgn->numer = str_to_bigint("1");
+            sgn->denom = str_to_bigint("1");
+            sgn->numer->sign = (v=='+' ? PLUS : MINUS);
+            push_num(&tmp, sgn);
+            push_op(&tmp, '*');
+        }
+        else if (v=='(' && cur!=NULL) {
+            // 2(5+3)과 같이 * 기호가 생략된 경우.
+            push_num(&tmp, cur);
+            cur = NULL;
+            underpoint = 0;
+            // 멘토링 중, 곱셈 기호 생략 시 강한 결합으로 더 우선순위가 높아야 한다기에,
+            // '@' 기호를 더 높은 우선순위의 곱셈 기호로 임의로 지정해 사용하기로.
+            push_op(&tmp, '@');
+            push_op(&tmp, '(');
+        }
+        else if (v=='+' || v=='-' || v=='*' || v=='/' || v=='(' || v==')'){
+            if (cur != NULL) {
+                push_num(&tmp, cur);
+                cur = NULL;
+                underpoint = 0;
+            }
+            push_op(&tmp, v);
         }
     }
     if (cur != NULL) push_num(&tmp, cur);
