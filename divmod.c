@@ -1,6 +1,6 @@
 #include "multiply.c"
 
-// O(NM), 아직 양수 간의 연산만 구현
+// O(NMk), 아직 양수 간의 연산만 구현
 void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     shrink_to_fit(a), shrink_to_fit(b);
 
@@ -8,7 +8,6 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     bigint *mod = new_bigint();
 
     node *it = front(a->head);
-    int lp = 0;
     while (it != a->head) {
         // 종이에서 계산하는 나눗셈 과정.
         // mod는 계산 과정 중 밑부분에 쓰는 수이면서
@@ -27,6 +26,8 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
         it = it->next;
     }
 
+    bool sgn = a->sign ^ b->sign;
+    div->sign = mod->sign = sgn;
     shrink_to_fit(div), shrink_to_fit(mod);
     if (*div_p != NULL) free_bigint(*div_p);
     if (*mod_p != NULL) free_bigint(*mod_p);
@@ -34,7 +35,24 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     *mod_p = mod;
 }
 
-// /*
+bigint* GCD(bigint *a, bigint *b) {
+    bigint *x = ABS(a);
+    bigint *y = ABS(b);
+
+    while (!iszero(y)) {
+        bigint *d = NULL, *m = NULL;
+        naiveDIVMOD(x, y, &d, &m);
+        free_bigint(d); d = NULL;
+        free_bigint(x); x = NULL;
+        x = y;
+        y = m;
+    }
+
+    free_bigint(y);
+    return x;
+}
+
+/*
 // TESTCODE
 int main() {
     bigint *a = str_to_bigint("10");

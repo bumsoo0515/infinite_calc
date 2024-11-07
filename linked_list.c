@@ -87,7 +87,7 @@ void clear(node *head) {
     }
     head->prev = head->next = head;
 }
-void destroy_list(node *head) {clear(head); free(head);}
+void free_list(node *head) {clear(head); free(head);}
 
 // !warning! must store it in variable before using it. don't pass directly as fuction arguments.
 node* copy(node *head) {
@@ -135,6 +135,6 @@ int main() {
         putchar(it->data);
     }
 
-    destroy_list(a);
+    free_list(a);
 }
 */

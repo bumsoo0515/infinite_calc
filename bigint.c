@@ -1,5 +1,8 @@
 #include "linked_list.c"
 
+#define PLUS 0
+#define MINUS 1
+
 typedef struct bigint {
     bool sign;
     node *head;
@@ -13,7 +16,7 @@ bigint* new_bigint() {
     return n;
 }
 void free_bigint(bigint *n) {
-    destroy_list(n->head);
+    free_list(n->head);
     free(n);
 }
 void reset_bigint(bigint *n) {
@@ -38,6 +41,18 @@ bigint* str_to_bigint(char *str) {
     return n;
 }
 
+bigint* list_to_bigint(node *head) {
+    bigint *n = new_bigint();
+    free_list(n->head);
+    n->head = head;
+
+    for (node *it=front(n->head); it!=n->head; it=it->next) {
+        it->data = it->data-'0';
+    }
+    shrink_to_fit(n);
+    return n;
+}
+
 void print_bigint(bigint *n) {
     shrink_to_fit(n);
     if (n->sign) putchar('-');
@@ -48,7 +63,7 @@ void print_bigint(bigint *n) {
 bigint* NEG(bigint *n) {
     shrink_to_fit(n);
     bigint *ret = new_bigint();
-    destroy_list(ret->head);
+    free_list(ret->head);
     ret->sign = n->sign ^ 1;
     ret->head = copy(n->head);
     shrink_to_fit(ret);
@@ -62,7 +77,7 @@ void NEGATE(bigint *n) {
 bigint* ABS(bigint *n) {
     shrink_to_fit(n);
     bigint *ret = new_bigint();
-    destroy_list(ret->head);
+    free_list(ret->head);
     ret->head = copy(n->head);
     return ret;
 }
@@ -70,8 +85,8 @@ bigint* ABS(bigint *n) {
 // a < b
 bool LESS(bigint *a, bigint *b) {
     shrink_to_fit(a), shrink_to_fit(b);
-    if (a->sign == 1 && b->sign == 0) return 1;
-    if (a->sign == 0 && b->sign == 1) return 0;
+    if (a->sign == MINUS && b->sign == PLUS) return 1;
+    if (a->sign == PLUS && b->sign == MINUS) return 0;
 
     bool lenlss = 0;
     int datlss = 0;
@@ -85,7 +100,12 @@ bool LESS(bigint *a, bigint *b) {
     }
 
     if (p1!=a->head || p2!=b->head) return lenlss ^ a->sign;
-    return (datlss * (a->sign ? -1 : 1)) < 0;
+    return (datlss * (a->sign==PLUS ? 1 : -1)) < 0;
+}
+
+bool iszero(bigint *n) {
+    shrink_to_fit(n);
+    return front(n->head)->data == 0;
 }
 
 // !warning! must store it in variable before using it. don't pass directly as fuction arguments.
@@ -95,7 +115,7 @@ bigint* SUB(bigint *a, bigint *b);
 bigint* ADD(bigint *a, bigint *b) {
     shrink_to_fit(a), shrink_to_fit(b);
     if (a->sign != b->sign) {
-        if (a->sign == 1) {
+        if (a->sign == MINUS) {
             NEGATE(a);
             bigint *ret = SUB(b, a); 
             NEGATE(a);
@@ -135,7 +155,7 @@ bigint* ADD(bigint *a, bigint *b) {
 // !warning! must store it in variable before using it. don't pass directly as fuction arguments.
 bigint* SUB(bigint *a, bigint *b) {
     // automatically changes to 0 <= B <= A, A-B
-    if (a->sign == 1 && b->sign == 1) {
+    if (a->sign == MINUS && b->sign == MINUS) {
         NEGATE(a), NEGATE(b);
         bigint *ret = SUB(b, a);
         NEGATE(a), NEGATE(b);
@@ -180,7 +200,7 @@ bigint* SUB(bigint *a, bigint *b) {
 void store_ADD_to_target(bigint *a, bigint *b, bigint **target)
 와 같이 선언하여
 결과값을 리턴하는 게 아니라
-res에 결과값을 담아서 쓰도록 강제하면?
+target에 결과값을 담아서 쓰도록 강제하면?
 */
 
 
