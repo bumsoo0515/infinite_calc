@@ -26,7 +26,7 @@ void pop(Stack *s) {
     // *주의* 안에 fraction이 들어 있다면 이는 free되지 않는다
 }
 
-token* top(Stack *s) {
+token* peek(Stack *s) {
     return s->top;
 }
 
@@ -46,6 +46,24 @@ void push_num(Stack *s, fraction *f) {
     to_add->op = 0;
     to_add->next = s->top;
     s->top = to_add;
+}
+
+fraction* pop_num(Stack *s) {
+    token *to_del = s->top;
+    s->top = s->top->next;
+    assert(to_del->dtype == NUMBER);
+    fraction *ret = to_del->num;
+    free(to_del);
+    return ret;
+}
+
+char pop_op(Stack *s) {
+    token *to_del = s->top;
+    s->top = s->top->next;
+    assert(to_del->dtype == OPERATOR);
+    char ret = to_del->op;
+    free(to_del);
+    return ret;
 }
 
 void str_tokenize(char *str, Stack *res) {
@@ -100,13 +118,8 @@ void str_tokenize(char *str, Stack *res) {
     if (cur != NULL) push_num(&tmp, cur);
     
     while (!stempty(&tmp)) {
-        if (top(&tmp)->dtype == NUMBER) {
-            push_num(res, top(&tmp)->num);
-        }
-        else {
-            push_op(res, top(&tmp)->op);
-        }
-        pop(&tmp);
+        if (peek(&tmp)->dtype == NUMBER) push_num(res, pop_num(&tmp));
+        else push_op(res, pop_op(&tmp));
     }
 }
 
@@ -163,13 +176,8 @@ void list_tokenize(node *head, Stack *res) {
     if (cur != NULL) push_num(&tmp, cur);
     
     while (!stempty(&tmp)) {
-        if (top(&tmp)->dtype == NUMBER) {
-            push_num(res, top(&tmp)->num);
-        }
-        else {
-            push_op(res, top(&tmp)->op);
-        }
-        pop(&tmp);
+        if (peek(&tmp)->dtype == NUMBER) push_num(res, pop_num(&tmp));
+        else push_op(res, pop_op(&tmp));
     }
 }
 
@@ -181,8 +189,8 @@ int main() {
 
     tokenize(str, &res);
     while (!stempty(&res)) {
-        if (top(&res)->dtype == NUMBER) print_fraction(top(&res)->num, -1);
-        else printf("%c", top(&res)->op);
+        if (peek(&res)->dtype == NUMBER) print_fraction(peek(&res)->num, -1);
+        else printf("%c", peek(&res)->op);
         printf("\n");
         fflush(stdout);
         pop(&res);

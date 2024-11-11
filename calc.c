@@ -4,15 +4,15 @@ fraction* calculate(Stack *p) {
     Stack s; s.top = NULL;
 
     while (!stempty(p)) {
-        if (top(p)->dtype == NUMBER) {
-            push_num(&s, top(p)->num); pop(p);
+        if (peek(p)->dtype == NUMBER) {
+            push_num(&s, pop_num(p));
             continue;
         }
-        fraction *y = top(&s)->num; pop(&s);
-        fraction *x = top(&s)->num; pop(&s);
+        fraction *y = pop_num(&s);
+        fraction *x = pop_num(&s);
 
         fraction *r = NULL;
-        char op = top(p)->op; pop(p);
+        char op = pop_op(p);
         if (op=='+') r = FADD(x, y);
         else if (op=='-') r = FSUB(x, y);
         else if (op=='*' || op=='@') r = FMUL(x, y);
@@ -22,5 +22,5 @@ fraction* calculate(Stack *p) {
         push_num(&s, r);
     }
 
-    return top(&s)->num;
+    return pop_num(&s);
 }
