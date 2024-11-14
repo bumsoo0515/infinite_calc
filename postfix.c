@@ -13,40 +13,34 @@ void infix_to_postfix(Stack *infix, Stack *postfix) {
     Stack tmp; tmp.top = NULL;
 
     while (!stempty(infix)) {
-        token *v = top(infix);
+        token *v = peek(infix);
         if (v->dtype == NUMBER) {
             push_num(&tmp, v->num);
         }
         else if (v->op=='(') {
-                push_op(&oper, v->op);
+            push_op(&oper, v->op);
         }
         else if (v->op==')') {
-            while (!stempty(&oper) && top(&oper)->op!='(') {
-                push_op(&tmp, top(&oper)->op);
-                pop(&oper);
+            while (!stempty(&oper) && peek(&oper)->op!='(') {
+                push_op(&tmp, pop_op(&oper));
             }
-            pop(&oper);
+            pop(&oper); // 여는 괄호 제거
         }
         else {
-            while (!stempty(&oper) && precedence(top(&oper)) >= precedence(v)) {
-                push_op(&tmp, top(&oper)->op);
-                pop(&oper);
+            while (!stempty(&oper) && precedence(peek(&oper)) >= precedence(v)) {
+                push_op(&tmp, pop_op(&oper));
             }
             push_op(&oper, v->op);
-        } 
+        }
         pop(infix);
     }
 
-    while (!stempty(&oper)) {
-        push_op(&tmp, top(&oper)->op);
-        pop(&oper);
-    }
+    while (!stempty(&oper)) push_op(&tmp, pop_op(&oper));
 
     // tmp에 역순으로 담긴 후위식을 postfix에 다시 담기
     while (!stempty(&tmp)) {
-        if (top(&tmp)->dtype == NUMBER) push_num(postfix, top(&tmp)->num);
-        else push_op(postfix, top(&tmp)->op);
-        pop(&tmp);
+        if (peek(&tmp)->dtype == NUMBER) push_num(postfix, pop_num(&tmp));
+        else push_op(postfix, pop_op(&tmp));
     }
 }
 
@@ -61,8 +55,8 @@ int main() {
     infix_to_postfix(&infix, &postfix);
 
     while (!stempty(&postfix)) {
-        if (top(&postfix)->dtype == NUMBER) print_fraction(top(&postfix)->num, 500);
-        else printf("%c", top(&postfix)->op);
+        if (peek(&postfix)->dtype == NUMBER) print_fraction(peek(&postfix)->num, 500);
+        else printf("%c", peek(&postfix)->op);
         printf("\n");
         fflush(stdout);
         pop(&postfix);
