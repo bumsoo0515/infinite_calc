@@ -144,7 +144,7 @@ void list_tokenize(node *head, Stack *res) {
             if (underpoint) push_back(cur->denom->head, 0);
         }
         else if (v=='.') underpoint = 1;
-        else if ((v=='+' || v=='-') && (cur==NULL)) {
+        else if ((v=='+' || v=='-') && (cur==NULL) && (stempty(&tmp) || peek(&tmp)->dtype==NUMBER)) {
             // +나 -가 수의 부호를 표현하는 경우.
             // -1*수 와 같이 바꿔서 처리.
             fraction *sgn = new_fraction();
