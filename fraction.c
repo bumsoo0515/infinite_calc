@@ -27,6 +27,7 @@ void free_fraction(fraction *f) {
 }
 
 void reduce(fraction *f) {
+    assert(!iszero(f->denom));
     bigint *g = GCD(f->numer, f->denom);
     bigint *d1 = NULL, *m1 = NULL;
     bigint *d2 = NULL, *m2 = NULL;
