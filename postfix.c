@@ -39,7 +39,7 @@ void infix_to_postfix(Stack *infix, Stack *postfix) {
 
     // tmp에 역순으로 담긴 후위식을 postfix에 다시 담기
     while (!stempty(&tmp)) {
-        if (peek(&tmp)->dtype == NUMBER) push_num(postfix, pop_num(&tmp));
+        if (is_num(peek(&tmp))) push_num(postfix, pop_num(&tmp));
         else push_op(postfix, pop_op(&tmp));
     }
 }

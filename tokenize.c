@@ -66,6 +66,14 @@ char pop_op(Stack *s) {
     return ret;
 }
 
+bool is_num(token *t) {
+    return t->dtype == NUMBER;
+}
+bool is_op(token *t) {
+    return t->dtype == OPERATOR;
+}
+
+/*
 void str_tokenize(char *str, Stack *res) {
     Stack tmp; tmp.top = NULL;
     // 먼저 앞에서부터 토큰을 분해해 스택에 순서대로 넣고,
@@ -118,10 +126,11 @@ void str_tokenize(char *str, Stack *res) {
     if (cur != NULL) push_num(&tmp, cur);
     
     while (!stempty(&tmp)) {
-        if (peek(&tmp)->dtype == NUMBER) push_num(res, pop_num(&tmp));
+        if (is_num(peek(&tmp))) push_num(res, pop_num(&tmp));
         else push_op(res, pop_op(&tmp));
     }
 }
+*/
 
 void list_tokenize(node *head, Stack *res) {
     Stack tmp; tmp.top = NULL;
@@ -144,7 +153,7 @@ void list_tokenize(node *head, Stack *res) {
             if (underpoint) push_back(cur->denom->head, 0);
         }
         else if (v=='.') underpoint = 1;
-        else if ((v=='+' || v=='-') && (cur==NULL) && (stempty(&tmp) || (peek(&tmp)->dtype==OPERATOR && peek(&tmp)->op!=')'))) {
+        else if ((v=='+' || v=='-') && (cur==NULL) && (stempty(&tmp) || ((is_op(peek(&tmp)) && peek(&tmp)->op!=')')))) {
             // +나 -가 수의 부호를 표현하는 경우.
             // -1*수 와 같이 바꿔서 처리.
             fraction *sgn = new_fraction();
@@ -154,11 +163,13 @@ void list_tokenize(node *head, Stack *res) {
             push_num(&tmp, sgn);
             push_op(&tmp, '*');
         }
-        else if (v=='(' && cur!=NULL) {
+        else if (v=='(' && (cur!=NULL || (!stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')'))) {
             // 2(5+3)과 같이 * 기호가 생략된 경우.
-            push_num(&tmp, cur);
-            cur = NULL;
-            underpoint = 0;
+            if (cur != NULL) {
+                push_num(&tmp, cur);
+                cur = NULL;
+                underpoint = 0;
+            }
             // 멘토링 중, 곱셈 기호 생략 시 강한 결합으로 더 우선순위가 높아야 한다기에,
             // '@' 기호를 더 높은 우선순위의 곱셈 기호로 임의로 지정해 사용하기로.
             push_op(&tmp, '@');
@@ -166,6 +177,7 @@ void list_tokenize(node *head, Stack *res) {
         }
         else if (v=='+' || v=='-' || v=='*' || v=='/' || v=='(' || v==')'){
             if (cur != NULL) {
+                if (!stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')') push_op(&tmp, '@');
                 push_num(&tmp, cur);
                 cur = NULL;
                 underpoint = 0;
@@ -173,10 +185,13 @@ void list_tokenize(node *head, Stack *res) {
             push_op(&tmp, v);
         }
     }
-    if (cur != NULL) push_num(&tmp, cur);
+    if (cur != NULL) {
+        if (!stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')') push_op(&tmp, '@');
+        push_num(&tmp, cur);
+    }
     
     while (!stempty(&tmp)) {
-        if (peek(&tmp)->dtype == NUMBER) push_num(res, pop_num(&tmp));
+        if (is_num(peek(&tmp))) push_num(res, pop_num(&tmp));
         else push_op(res, pop_op(&tmp));
     }
 }

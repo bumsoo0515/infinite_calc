@@ -4,7 +4,7 @@ fraction* calculate(Stack *p) {
     Stack s; s.top = NULL;
 
     while (!stempty(p)) {
-        if (peek(p)->dtype == NUMBER) {
+        if (is_num(peek(p))) {
             push_num(&s, pop_num(p));
             continue;
         }
