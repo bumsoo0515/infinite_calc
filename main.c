@@ -20,6 +20,7 @@ int main() {
     fraction *res = calculate(&postfix);
     print_fraction(res, PRINT_LIMIT);
     free_fraction(res);
+    free_list(inp);
 
     return 0;
 }
