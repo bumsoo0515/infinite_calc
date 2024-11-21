@@ -1,5 +1,7 @@
 #include "calc.c"
 
+#define PRINT_LIMIT 1000
+
 int main() {
     Stack infix; infix.top = NULL;
     Stack postfix; postfix.top = NULL;
@@ -16,7 +18,8 @@ int main() {
     list_tokenize(inp, &infix);
     infix_to_postfix(&infix, &postfix);
     fraction *res = calculate(&postfix);
-    print_fraction(res, LIMIT);
+    print_fraction(res, PRINT_LIMIT);
+    free_fraction(res);
 
     return 0;
 }
