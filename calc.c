@@ -11,7 +11,7 @@ fraction* calculate(Stack *p) {
 
         if (stempty(&s)) OperandMissing();
         fraction *y = pop_num(&s);
-        
+
         if (stempty(&s)) OperandMissing();
         fraction *x = pop_num(&s);
 
@@ -26,5 +26,8 @@ fraction* calculate(Stack *p) {
         push_num(&s, r);
     }
 
-    return pop_num(&s);
+    if (stempty(&s)) InvalidInput();
+    fraction *ret = pop_num(&s);
+    if (!stempty(&s)) InvalidInput();
+    return ret;
 }
