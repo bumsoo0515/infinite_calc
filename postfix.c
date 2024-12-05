@@ -24,6 +24,7 @@ void infix_to_postfix(Stack *infix, Stack *postfix) {
             while (!stempty(&oper) && peek(&oper)->op!='(') {
                 push_op(&tmp, pop_op(&oper));
             }
+            if (stempty(&oper)) ParentheseNotMatch();
             pop(&oper); // 여는 괄호 제거
         }
         else {
@@ -35,7 +36,10 @@ void infix_to_postfix(Stack *infix, Stack *postfix) {
         pop(infix);
     }
 
-    while (!stempty(&oper)) push_op(&tmp, pop_op(&oper));
+    while (!stempty(&oper)) {
+        if (peek(&oper)->op == '(') ParentheseNotMatch();
+        push_op(&tmp, pop_op(&oper));
+    }
 
     // tmp에 역순으로 담긴 후위식을 postfix에 다시 담기
     while (!stempty(&tmp)) {

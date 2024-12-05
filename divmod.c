@@ -5,7 +5,7 @@ void naiveDIVMOD(bigint *a, bigint *b, bigint **div_p, bigint **mod_p) {
     bigint *x = ABS(a);
     bigint *y = ABS(b);
 
-    assert(!iszero(y));
+    if (iszero(y)) ZeroDivision();
     
     bigint *div = new_bigint();
     bigint *mod = new_bigint();

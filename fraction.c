@@ -8,7 +8,9 @@ typedef struct fraction {
 } fraction;
 
 fraction* new_fraction() {
-    return (fraction*)malloc(sizeof(fraction));
+    fraction *ret = (fraction*)malloc(sizeof(fraction));
+    if (ret == NULL) AllocateFailed();
+    return ret;
 }
 
 fraction* bigint_to_fraction(bigint *n) {
@@ -25,7 +27,7 @@ void free_fraction(fraction *f) {
 }
 
 void reduce(fraction *f) {
-    assert(!iszero(f->denom));
+    if (iszero(f->denom)) ZeroDivision();
     bigint *g = GCD(f->numer, f->denom);
     bigint *d1 = NULL, *m1 = NULL;
     bigint *d2 = NULL, *m2 = NULL;
@@ -179,6 +181,7 @@ void print_fraction(fraction *f, long long dec) {
         printf(".");
         for (node *it=back(dec_part->head); it!=dec_part->head; it=it->prev) printf("%d", it->data);
     }
+    free_bigint(mod);
     free_bigint(int_part), free_bigint(dec_part);
 }
 

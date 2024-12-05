@@ -67,9 +67,9 @@ bigint* naiveMUL(bigint *a, bigint *b) {
 }
 
 
-void karatsuba() {
+// void karatsuba() {
     
-}
+// }
 
 /*
 // TESTCODE

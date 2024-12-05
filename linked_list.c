@@ -3,17 +3,23 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "exception.c"
 
 typedef struct node {
     char data;
     struct node *prev, *next;
 } node;
 
-node* new_node() {return (node*)malloc(sizeof(node));}
+node* new_node() {
+    node *ret = (node*)malloc(sizeof(node));
+    if (ret == NULL) AllocateFailed();
+    return ret;
+}
 
 // create new linked list and return head node of it
 node* new_list() {
     node *head = new_node();
+    if (head == NULL) AllocateFailed();
     head->data = 0;
     head->prev = head;
     head->next = head;

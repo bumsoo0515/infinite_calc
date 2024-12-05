@@ -8,7 +8,11 @@ fraction* calculate(Stack *p) {
             push_num(&s, pop_num(p));
             continue;
         }
+
+        if (stempty(&s)) OperandMissing();
         fraction *y = pop_num(&s);
+        
+        if (stempty(&s)) OperandMissing();
         fraction *x = pop_num(&s);
 
         fraction *r = NULL;

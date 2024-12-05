@@ -11,6 +11,7 @@ typedef struct bigint {
 // 새 bigint를 할당하고, 안에 새 list도 할당한 채로 return. (0을 저장하진 않는다.)
 bigint* new_bigint() {
     bigint* n = (bigint*)malloc(sizeof(bigint));
+    if (n == NULL) AllocateFailed();
     n->sign = 0;
     n->head = new_list();
     return n;

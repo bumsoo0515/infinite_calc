@@ -1,4 +1,5 @@
 #include "fraction.c"
+#include <ctype.h>
 
 #define NUMBER 0
 #define OPERATOR 1
@@ -32,6 +33,7 @@ token* peek(Stack *s) {
 
 void push_op(Stack *s, char op) {
     token *to_add = (token*)malloc(sizeof(token));
+    if (to_add == NULL) AllocateFailed();
     to_add->dtype = OPERATOR;
     to_add->num = NULL;
     to_add->op = op;
@@ -41,6 +43,7 @@ void push_op(Stack *s, char op) {
 
 void push_num(Stack *s, fraction *f) {
     token *to_add = (token*)malloc(sizeof(token));
+    if (to_add == NULL) AllocateFailed();
     to_add->dtype = NUMBER;
     to_add->num = f;
     to_add->op = 0;
@@ -51,7 +54,7 @@ void push_num(Stack *s, fraction *f) {
 fraction* pop_num(Stack *s) {
     token *to_del = s->top;
     s->top = s->top->next;
-    assert(to_del->dtype == NUMBER);
+    if (to_del->dtype != NUMBER) TypeNotMatch();
     fraction *ret = to_del->num;
     free(to_del);
     return ret;
@@ -60,7 +63,7 @@ fraction* pop_num(Stack *s) {
 char pop_op(Stack *s) {
     token *to_del = s->top;
     s->top = s->top->next;
-    assert(to_del->dtype == OPERATOR);
+    if (to_del->dtype != OPERATOR) TypeNotMatch();
     char ret = to_del->op;
     free(to_del);
     return ret;
@@ -152,8 +155,11 @@ void list_tokenize(node *head, Stack *res) {
             push_back(cur->numer->head, v-'0');
             if (underpoint) push_back(cur->denom->head, 0);
         }
-        else if (v=='.') underpoint = 1;
-        else if ((v=='+' || v=='-') && (cur==NULL) && (stempty(&tmp) || ((is_op(peek(&tmp)) && peek(&tmp)->op!=')')))) {
+        else if (v=='.') {
+            if (underpoint) InvalidInput();
+            underpoint = 1;
+        }
+        else if ((v=='+' || v=='-') && (cur==NULL) && (stempty(&tmp) || ((is_op(peek(&tmp)) && peek(&tmp)->op=='(')))) {
             // +나 -가 수의 부호를 표현하는 경우.
             // -1*수 와 같이 바꿔서 처리.
             fraction *sgn = new_fraction();
@@ -177,18 +183,24 @@ void list_tokenize(node *head, Stack *res) {
         }
         else if (v=='+' || v=='-' || v=='*' || v=='/' || v=='(' || v==')'){
             if (cur != NULL) {
-                if (!stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')') push_op(&tmp, '@');
+                if (v!=')' && !stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')') push_op(&tmp, '@');
                 push_num(&tmp, cur);
                 cur = NULL;
                 underpoint = 0;
             }
             push_op(&tmp, v);
         }
+        else if (isspace(v)) continue;
+        else InvalidInput();
     }
+
     if (cur != NULL) {
         if (!stempty(&tmp) && is_op(peek(&tmp)) && peek(&tmp)->op==')') push_op(&tmp, '@');
         push_num(&tmp, cur);
+        cur = NULL;
+        underpoint = 0;
     }
+    if (underpoint) InvalidInput();
     
     while (!stempty(&tmp)) {
         if (is_num(peek(&tmp))) push_num(res, pop_num(&tmp));
